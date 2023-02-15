@@ -223,6 +223,42 @@ button:focus:not(:focus-visible) {
 	border-color: var(--primary-color) !important;
 }
 
+#check-filter{
+    display: none !important;
+}
+
+#check-filter:checked ~ div{
+    display: inline-block !important;
+}
+.label-check-filter{
+
+    width: 100%;
+    border: 1px solid var(--primary-color) !important;
+    color: var(--primary-color) !important;
+}
+.label-check-filter:active{
+ 
+    background-color: var(--primary-color) !important;
+    color: #FFFFFF !important
+    
+}
+
+.form-check-inline{
+    transition: all .5s;
+}
+
+@media  screen and (min-width:576px){
+    .label-check-filter{
+        width: fit-content;
+    }
+}
+
+@media  screen and (min-width:1400px){
+    .content-filter{
+        align-items: center !important;
+    }
+}
+
 
 /**
  * 04. CARDS
