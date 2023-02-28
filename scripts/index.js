@@ -4,7 +4,7 @@ cardsContainer.innerHTML = cardsGenerated;
 
 function createCards(arrayDataEvents) {
     let cardContent = ``;
-    for (const event of arrayDataEvents) {
+    arrayDataEvents.forEach(event => {
         cardContent += `
         <div class="col">
           <div class="card h-100">
@@ -20,8 +20,6 @@ function createCards(arrayDataEvents) {
           </div>
         </div>
         `;
-    }
+    });
     return cardContent;
 }
-
-
