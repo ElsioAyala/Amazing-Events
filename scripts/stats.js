@@ -5,29 +5,32 @@ const url = "https://mindhub-xj03.onrender.com/api/amazing";
 /*const url = "./scripts/amazing.json";*/
 
 loadEvents = async () => {
-    const response = await fetch(url);
-    const data = await response.json();
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
 
-    const currentDate = setDate(data.currentDate);
+        const currentDate = setDate(data.currentDate);
 
-    const arrayPastEvents = getPastEvents(data.events, currentDate)
-    const arrayUpcomingEvents = getUpcomingEvents(data.events, currentDate);
+        const arrayPastEvents = getPastEvents(data.events, currentDate)
+        const arrayUpcomingEvents = getUpcomingEvents(data.events, currentDate);
 
-    const categoriesPastEvents = getCategories(arrayPastEvents);
-    const categoriesUpcomingEvents = getCategories(arrayUpcomingEvents);
+        const categoriesPastEvents = getCategories(arrayPastEvents);
+        const categoriesUpcomingEvents = getCategories(arrayUpcomingEvents);
 
-    const upcomingEventsGrupedByCategories = getEventsGroupedByCategories(arrayUpcomingEvents, categoriesUpcomingEvents);
-    const pastEventsGrupedByCategories = getEventsGroupedByCategories(arrayPastEvents, categoriesPastEvents);
+        const upcomingEventsGrupedByCategories = getEventsGroupedByCategories(arrayUpcomingEvents, categoriesUpcomingEvents);
+        const pastEventsGrupedByCategories = getEventsGroupedByCategories(arrayPastEvents, categoriesPastEvents);
 
-    
-    const statisticsEvents = getStatisticsEvents(arrayPastEvents); // data.events
-    showStatisticsEvents(statisticsEvents)
 
-    const statisticsUpcomingEvents = getStatistics(upcomingEventsGrupedByCategories);
-    const statisticsPastEvents = getStatistics(pastEventsGrupedByCategories);
-    showStatistics(statisticsUpcomingEvents, tbodyUpcoming);
-    showStatistics(statisticsPastEvents, tbodypast);
-    
+        const statisticsEvents = getStatisticsEvents(arrayPastEvents); // data.events
+        showStatisticsEvents(statisticsEvents)
+
+        const statisticsUpcomingEvents = getStatistics(upcomingEventsGrupedByCategories);
+        const statisticsPastEvents = getStatistics(pastEventsGrupedByCategories);
+        showStatistics(statisticsUpcomingEvents, tbodyUpcoming);
+        showStatistics(statisticsPastEvents, tbodypast);
+    } catch (error) {
+        console.log("An error has occurred: " + error.message);
+    }
 }
 loadEvents();
 
@@ -92,14 +95,14 @@ function getStatisticsEvents(events) {
             percentage: (((event.assistance || event.estimate) * 100) / event.capacity),
         }
     });
-    
+
     const bigger = newObjEvents.reduce((acc, cur) => { if (acc.percentage < cur.percentage) return cur; else return acc; });
     const biggers = newObjEvents.filter(event => event.percentage == bigger.percentage)
     const minor = newObjEvents.reduce((acc, cur) => { if (acc.percentage > cur.percentage) return cur; else return acc; });
     const minors = newObjEvents.filter(event => event.percentage == minor.percentage)
     const greaterCapacity = events.reduce((acc, cur) => { if (acc.capacity < cur.capacity) return cur; else return acc; });
     const greaterCapacitys = events.filter(event => event.capacity == greaterCapacity.capacity);
-    
+
     return {
         biggers,
         minors,
