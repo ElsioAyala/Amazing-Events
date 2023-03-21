@@ -1,7 +1,34 @@
 const cardsContainer = document.getElementById("cards");
-const currentDate = setDate(data.currentDate);
-const pastEvents = setPastEvents(data.events);
-createCards(pastEvents);
+
+const url = "https://mindhub-xj03.onrender.com/api/amazing";
+/*const url = "./scripts/amazing.json";*/
+
+let pastEvents = null;
+loadEvents = async () => {
+    preload()
+    const response = await fetch(url);
+    const data = await response.json();
+
+    const currentDate = setDate(data.currentDate);
+    pastEvents = setPastEvents(data.events, currentDate);
+    createCards(pastEvents);
+    
+    const categories = getCategories(pastEvents);
+    createCheckboxFilter(categories);
+    const checkboxes = document.querySelectorAll(".form-check-input");
+    checkboxEvent(checkboxes);
+}
+loadEvents()
+
+function preload(){
+    const template = document.querySelector("#template-preload").content;
+    const fragment = document.createDocumentFragment();
+    for (let i = 0; i < 8; i++) {
+        const clone = template.cloneNode(true);
+        fragment.appendChild(clone);
+    }
+    cardsContainer.appendChild(fragment);
+}
 
 function printHTML(container, data) {
     container.innerHTML = data;
@@ -13,7 +40,7 @@ function setDate(date) {
     return dateOk.getTime();
 }
 
-function setPastEvents(arrayDataEvents) {
+function setPastEvents(arrayDataEvents, currentDate) {
     let arrayPastEvents = arrayDataEvents.filter(event => setDate(event.date) < currentDate);
     return arrayPastEvents;
 }
@@ -25,7 +52,7 @@ function createCards(arrayPastEvents) {
             cardContent += `
                 <div class="col">
                 <div class="card h-100">
-                    <img src="${event.image}" class="card-img-top" alt="image-${event.image.slice(30,-4)}">
+                    <img src="${event.image}" class="card-img-top" alt="image-${event.image.slice(30,-4)} loading="lazy"">
                     <div class="card-body">
                         <h5 class="card-title">${event.name}</h5>
                         <p class="card-text">${event.description}</p>
@@ -52,7 +79,6 @@ Checkbox Filters
 
 /***  Generar checkbox por categorias dinamicamnte ***/
 
-const categories = getCategories(data.events);
 function getCategories(events) {
     const repeatedCategories = events.map(event => event.category);
     return new Set(repeatedCategories);
@@ -63,7 +89,6 @@ function removeSpaces (txt) {
 }
 
 const formCheckContainer = document.querySelector(".form-check-container");
-createCheckboxFilter(categories);
 function createCheckboxFilter(arrayCategories) {
     let fragment = ``;
     arrayCategories.forEach(category => {
@@ -79,17 +104,19 @@ function createCheckboxFilter(arrayCategories) {
 
 const checkboxes = document.querySelectorAll(".form-check-input");
 let checkedCategories = [];
-checkboxes.forEach(checkbox => {
-    checkbox.addEventListener("click", () => {
-        if (checkbox.checked === true) {
-            checkedCategories.push(checkbox.value);
-            checkedCategoryCards(checkedCategories);
-        } else {
-            checkedCategories = checkedCategories.filter(category => category !== checkbox.value);
-            checkedCategoryCards(checkedCategories);
-        }
-    })
-});
+function checkboxEvent(checkboxes) {
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener("click", () => {
+            if (checkbox.checked === true) {
+                checkedCategories.push(checkbox.value);
+                checkedCategoryCards(checkedCategories);
+            } else {
+                checkedCategories = checkedCategories.filter(category => category !== checkbox.value);
+                checkedCategoryCards(checkedCategories);
+            }
+        })
+    });
+}
 
 let checkedCards = [];
 function checkedCategoryCards(checkedCategories) {

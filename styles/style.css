@@ -386,3 +386,57 @@ tr{
     }
     
 }
+
+/**
+ * 09. LOADING PLACEHOLDER
+ *
+ * -------------------------------------------------------------------
+ */
+
+ .holder {
+    position: relative;
+    background-color: #ced4da;
+    min-height: 24px;
+    min-width: 50px;
+    overflow: hidden;
+}
+
+
+
+.into-preload {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 50%;
+    z-index: 1;
+    width: 500%;
+    margin-left: -250%;
+    -webkit-animation: bgAnimation 0.8s linear infinite;
+    animation: bgAnimation 0.8s linear infinite;
+    background: linear-gradient(90deg,
+            hsla(0, 0%, 100%, 0) 46%,
+            hsla(0, 0%, 100%, 0.35) 50%,
+            hsla(0, 0%, 100%, 0) 54%) 50% 50%;
+}
+
+body.dark-theme .holder{
+    background-color: #3e3f41;
+}
+
+body.dark-theme .into-preload{
+    background: linear-gradient(90deg,
+            hsla(0, 0%, 100%, 0) 46%,
+            hsla(0, 0%, 100%, 0.123) 50%,
+            hsla(0, 0%, 100%, 0) 54%) 50% 50%;
+}
+
+@keyframes bgAnimation {
+    0% {
+        transform: translate3d(-30%, 0, 0);
+    }
+
+    to {
+        transform: translate3d(30%, 0, 0);
+    }
+}
