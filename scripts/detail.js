@@ -1,29 +1,38 @@
-(function(dataEvents) {
+const queryString = location.search;
+const params = new URLSearchParams(queryString);
+const id = params.get("id");
 
-    const cardContainer = document.getElementById("container");
+const url = "https://mindhub-xj03.onrender.com/api/amazing";
+/*const url = "./scripts/amazing.json";*/
+
+loadEvents = async () => {
+    const response = await fetch(url);
+    const data = await response.json();
+
     const currentDate = setDate(data.currentDate);
+    const card = data.events.find((event) => event._id == id);
+    const assistance = assistanceEvent(card.date, currentDate, card);
+    showCard(card, assistance);
+}
+loadEvents()
 
-    function setDate(date) {
-        const reg = /[-]/g;
-        const dateOk = new Date(date.replace(reg, ','));
-        return dateOk.getTime();
+const cardContainer = document.getElementById("container");
+
+function setDate(date) {
+    const reg = /[-]/g;
+    const dateOk = new Date(date.replace(reg, ','));
+    return dateOk.getTime();
+}
+
+function assistanceEvent(eventDate, currentDate, card) {
+    if (currentDate > setDate(eventDate)) {
+        return `<b>Assistence:</b> ${card.assistance}`;
+    } else {
+        return `<b>Estimate Assistence:</b> ${card.estimate}`;
     }
+}
 
-    const queryString = location.search;
-    const params = new URLSearchParams(queryString);
-    const id = params.get("id");
- 
-    const card = dataEvents.find((event) => event._id == id);
-    
-    function assistenceEvent(){
-        if (currentDate > setDate(card.date)){
-            return `<b>Assistence:</b> ${card.assistance}`;
-        }else{
-            return `<b>Estimate Assistence:</b> ${card.estimate}`;
-        }
-    }
-    const assistence = assistenceEvent()
-
+function showCard(card, assistance) {
     let templateCard = `<div class="card mb-3 mt-5 mx-auto" style="max-width: 1000px;">
         <div class="row g-0">
             <div class="col-md-4">
@@ -43,7 +52,7 @@
                             <td><b>Capacity:</b> ${card.capacity}</td>
                         </tr>
                         <tr>
-                            <td>${assistence}</td>
+                            <td>${assistance}</td>
                             <td><b>Price:</b> $${card.price}</td>
                         </tr>
                     </table>
@@ -53,8 +62,8 @@
     </div>`;
 
     cardContainer.innerHTML = templateCard;
+}
 
-    const btnback = document.getElementById('btn-back');
-    btnback.addEventListener('click', () => history.back())
+const btnback = document.getElementById('btn-back');
+btnback.addEventListener('click', () => history.back())
 
-})(data.events)

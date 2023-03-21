@@ -1,4 +1,35 @@
 const cardsContainer = document.getElementById("cards");
+const url = "https://mindhub-xj03.onrender.com/api/amazing";
+/*const url = "./scripts/amazing.json";*/
+
+let dataEvents = null;
+loadEvents = async () => {
+    preload()
+
+    const response = await fetch(url);
+    const { events } = await response.json();
+
+    dataEvents = events;
+    createCards(events);
+
+    const categories = getCategories(events);
+    createCheckboxFilter(categories);
+
+    const checkboxes = document.querySelectorAll(".form-check-input");
+    checkboxEvent(checkboxes);
+}
+loadEvents()
+
+function preload(){
+    const template = document.querySelector("#template-preload").content;
+    const fragment = document.createDocumentFragment();
+    for (let i = 0; i < 8; i++) {
+        const clone = template.cloneNode(true);
+        fragment.appendChild(clone);
+    }
+    cardsContainer.appendChild(fragment);
+}
+
 
 function printHTML(container, data) {
     container.innerHTML = data;
@@ -11,7 +42,7 @@ function createCards(arrayDataEvents) {
             cardContent += `
                 <div class="col">
                 <div class="card h-100">
-                    <img src="${event.image}" class="card-img-top" alt="image-${event.image.slice(30,-4)}">
+                    <img src="${event.image}" class="card-img-top" alt="image-${event.image.slice(30,-4)}" loading="lazy">
                     <div class="card-body">
                         <h5 class="card-title">${event.name}</h5>
                         <p class="card-text">${event.description}</p>
@@ -29,7 +60,6 @@ function createCards(arrayDataEvents) {
         printHTML(cardsContainer, message);
     }
 }
-createCards(data.events);
 
 /*
 *****************************************************
@@ -37,9 +67,6 @@ checkbox filters
 *****************************************************
 */
 
-/***  Generar checkbox por categorias dinamicamnte ***/
-
-const categories = getCategories(data.events);
 function getCategories(events) {
     const repeatedCategories = events.map(event => event.category);
     return new Set(repeatedCategories);
@@ -50,7 +77,6 @@ function removeSpaces (txt) {
 }
 
 const formCheckContainer = document.querySelector(".form-check-container");
-createCheckboxFilter(categories);
 function createCheckboxFilter(arrayCategories) {
     let fragment = ``;
     arrayCategories.forEach(category => {
@@ -62,44 +88,42 @@ function createCheckboxFilter(arrayCategories) {
     printHTML(formCheckContainer, fragment);
 }
 
-/*** Escuchar eventos y aplicar filtros por categoria ***/
-
-const checkboxes = document.querySelectorAll(".form-check-input");
 let checkedCategories = [];
-checkboxes.forEach(checkbox => {
-    checkbox.addEventListener("click", () => {
-        if (checkbox.checked === true) {
-            checkedCategories.push(checkbox.value);
-            checkedCategoryCards(checkedCategories);
-        } else {
-            checkedCategories = checkedCategories.filter(category => category !== checkbox.value);
-            checkedCategoryCards(checkedCategories);
-        }
-    })
-});
+function checkboxEvent(checkboxes) {
+    checkboxes.forEach(checkbox => {
+        checkbox.addEventListener("click", () => {
+            if (checkbox.checked === true) {
+                checkedCategories.push(checkbox.value);
+                checkedCategoryCards(checkedCategories);
+            } else {
+                checkedCategories = checkedCategories.filter(category => category !== checkbox.value);
+                checkedCategoryCards(checkedCategories);
+            }
+        })
+    });
+}
 
 let checkedCards = [];
 function checkedCategoryCards(checkedCategories) {
     checkedCards = [];
     checkedCategories.forEach(category => {
-        const checkedEvents = data.events.filter(event => event.category === category);
-        checkedEvents.forEach(event => checkedCards.push(event));
+        const checkedEvents = dataEvents.filter(event => event.category === category);
+        checkedCards.push(checkedEvents);
     });
-    filter(inputSearch.value.toLowerCase(), checkedCards);
+    filter(inputSearch.value.toLowerCase(), checkedCards.flat());
 }
 
 function filter(value, checkedCards){
     if (checkedCards.length == 0 && value == ""){
-        createCards(data.events);
+        createCards(dataEvents);
     }else if (checkedCards.length == 0 && value !== ""){
-        let cards = data.events.filter((event) => event.name.toLowerCase().includes(value) || event.description.toLowerCase().includes(value));
+        let cards = dataEvents.filter((event) => event.name.toLowerCase().includes(value) || event.description.toLowerCase().includes(value));
         createCards(cards);
     }else{
         let cards = checkedCards.filter((event) => event.name.toLowerCase().includes(value) || event.description.toLowerCase().includes(value));
         createCards(cards.reverse());
     }
 }
-
 
 /*
 *****************************************************
@@ -113,7 +137,7 @@ inputSearch.value = '';
 
 inputSearch.addEventListener("keyup", () => {
     const value = inputSearch.value.toLowerCase();
-    filter(value, checkedCards);
+    filter(value, checkedCards.flat());
 });
 
 formSearch.addEventListener("submit", (e) => e.preventDefault());
