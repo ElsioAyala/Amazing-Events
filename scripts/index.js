@@ -4,23 +4,26 @@ const url = "https://mindhub-xj03.onrender.com/api/amazing";
 
 let dataEvents = null;
 loadEvents = async () => {
-    preload()
+    try {
+        preload()
+        const response = await fetch(url);
+        const { events } = await response.json();
 
-    const response = await fetch(url);
-    const { events } = await response.json();
+        createCards(events);
+        dataEvents = events;
 
-    dataEvents = events;
-    createCards(events);
+        const categories = getCategories(events);
+        createCheckboxFilter(categories);
 
-    const categories = getCategories(events);
-    createCheckboxFilter(categories);
-
-    const checkboxes = document.querySelectorAll(".form-check-input");
-    checkboxEvent(checkboxes);
+        const checkboxes = document.querySelectorAll(".form-check-input");
+        checkboxEvent(checkboxes);
+    } catch (error) {
+        console.log("An error has occurred: " + error.message);
+    }
 }
 loadEvents()
 
-function preload(){
+function preload() {
     const template = document.querySelector("#template-preload").content;
     const fragment = document.createDocumentFragment();
     for (let i = 0; i < 8; i++) {
@@ -42,7 +45,7 @@ function createCards(arrayDataEvents) {
             cardContent += `
                 <div class="col">
                 <div class="card h-100">
-                    <img src="${event.image}" class="card-img-top" alt="image-${event.image.slice(30,-4)}" loading="lazy">
+                    <img src="${event.image}" class="card-img-top" alt="image-${event.image.slice(30, -4)}" loading="lazy">
                     <div class="card-body">
                         <h5 class="card-title">${event.name}</h5>
                         <p class="card-text">${event.description}</p>
@@ -72,7 +75,7 @@ function getCategories(events) {
     return new Set(repeatedCategories);
 }
 
-function removeSpaces (txt) {
+function removeSpaces(txt) {
     return txt.split(' ').join('-').toLowerCase();
 }
 
@@ -113,13 +116,13 @@ function checkedCategoryCards(checkedCategories) {
     filter(inputSearch.value.toLowerCase(), checkedCards.flat());
 }
 
-function filter(value, checkedCards){
-    if (checkedCards.length == 0 && value == ""){
+function filter(value, checkedCards) {
+    if (checkedCards.length == 0 && value == "") {
         createCards(dataEvents);
-    }else if (checkedCards.length == 0 && value !== ""){
+    } else if (checkedCards.length == 0 && value !== "") {
         let cards = dataEvents.filter((event) => event.name.toLowerCase().includes(value) || event.description.toLowerCase().includes(value));
         createCards(cards);
-    }else{
+    } else {
         let cards = checkedCards.filter((event) => event.name.toLowerCase().includes(value) || event.description.toLowerCase().includes(value));
         createCards(cards.reverse());
     }

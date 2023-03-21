@@ -5,22 +5,27 @@ const url = "https://mindhub-xj03.onrender.com/api/amazing";
 
 let upcomingEvents = null;
 loadEvents = async () => {
-    preload()
-    const response = await fetch(url);
-    const data = await response.json();
+    try {
+        preload()
+        const response = await fetch(url);
+        const data = await response.json();
 
-    const currentDate = setDate(data.currentDate);
-    upcomingEvents = setUpcomingEvents(data.events, currentDate);
-    createCards(upcomingEvents);
-    
-    const categories = getCategories(upcomingEvents);
-    createCheckboxFilter(categories);
-    const checkboxes = document.querySelectorAll(".form-check-input");
-    checkboxEvent(checkboxes);
+        const currentDate = setDate(data.currentDate);
+        upcomingEvents = setUpcomingEvents(data.events, currentDate);
+        createCards(upcomingEvents);
+
+        const categories = getCategories(upcomingEvents);
+        createCheckboxFilter(categories);
+        const checkboxes = document.querySelectorAll(".form-check-input");
+        checkboxEvent(checkboxes);
+    } catch (error) {
+        console.log("An error has occurred: " + error.message);
+    }
+
 }
 loadEvents()
 
-function preload(){
+function preload() {
     const template = document.querySelector("#template-preload").content;
     const fragment = document.createDocumentFragment();
     for (let i = 0; i < 8; i++) {
@@ -47,13 +52,13 @@ function setUpcomingEvents(arrayDataEvents, currentDate) {
 
 
 function createCards(arrayUpcomingEvents) {
-    if(arrayUpcomingEvents.length > 0){
+    if (arrayUpcomingEvents.length > 0) {
         let cardContent = ``;
         arrayUpcomingEvents.forEach(event => {
             cardContent += `
                 <div class="col">
                 <div class="card h-100">
-                    <img src="${event.image}" class="card-img-top" alt="image-${event.image.slice(30,-4)}" loading="lazy">
+                    <img src="${event.image}" class="card-img-top" alt="image-${event.image.slice(30, -4)}" loading="lazy">
                     <div class="card-body">
                         <h5 class="card-title">${event.name}</h5>
                         <p class="card-text">${event.description}</p>
@@ -66,7 +71,7 @@ function createCards(arrayUpcomingEvents) {
                 </div>`;
         });
         printHTML(cardsContainer, cardContent);
-    }else{
+    } else {
         const message = `<h4> No results, try modifying the filters </h4>`;
         printHTML(cardsContainer, message);
     }
@@ -86,7 +91,7 @@ function getCategories(events) {
     return new Set(repeatedCategories);
 }
 
-function removeSpaces (txt) {
+function removeSpaces(txt) {
     return txt.split(' ').join('-').toLowerCase();
 }
 
@@ -131,13 +136,13 @@ function checkedCategoryCards(checkedCategories) {
     filter(inputSearch.value.toLowerCase(), checkedCards);
 }
 
-function filter(value, checkedCards){
-    if (checkedCards.length == 0 && value == ""){
+function filter(value, checkedCards) {
+    if (checkedCards.length == 0 && value == "") {
         createCards(upcomingEvents);
-    }else if (checkedCards.length == 0 && value !== ""){
+    } else if (checkedCards.length == 0 && value !== "") {
         let cards = upcomingEvents.filter((event) => event.name.toLowerCase().includes(value) || event.description.toLowerCase().includes(value));
         createCards(cards);
-    }else{
+    } else {
         let cards = checkedCards.filter((event) => event.name.toLowerCase().includes(value) || event.description.toLowerCase().includes(value));
         createCards(cards.reverse());
     }

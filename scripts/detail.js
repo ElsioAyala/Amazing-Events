@@ -6,13 +6,17 @@ const url = "https://mindhub-xj03.onrender.com/api/amazing";
 /*const url = "./scripts/amazing.json";*/
 
 loadEvents = async () => {
-    const response = await fetch(url);
-    const data = await response.json();
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
 
-    const currentDate = setDate(data.currentDate);
-    const card = data.events.find((event) => event._id == id);
-    const assistance = assistanceEvent(card.date, currentDate, card);
-    showCard(card, assistance);
+        const currentDate = setDate(data.currentDate);
+        const card = data.events.find((event) => event._id == id);
+        const assistance = assistanceEvent(card.date, currentDate, card);
+        showCard(card, assistance);
+    } catch (error) {
+        console.log("An error has occurred: " + error.message);
+    }
 }
 loadEvents()
 
